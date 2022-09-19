@@ -54,14 +54,18 @@ def plot_density(df: pd.DataFrame, out_path: str) -> None:
 
 
 def plot_timeseries(df: pd.DataFrame, out_path: str) -> None:
-    fig, axes = plt.subplots(4, 1, figsize=(6, 10))
+    fig, axes = plt.subplots(2, 2, figsize=(13, 10))
 
     df = df.resample("8H", on="datetime").mean().reset_index()
 
     df[df[helper.DATA_COLUMNS[0]] < 120].plot(kind="line", x="datetime", y=helper.DATA_COLUMNS[0], ax=axes.flat[0], grid=True, ylabel=helper.DATA_COLUMNS[0], xlabel=None, legend=False)
     df[df[helper.DATA_COLUMNS[1]] >= 0].plot(kind="line", x="datetime", y=helper.DATA_COLUMNS[1], ax=axes.flat[1], grid=True, ylabel=helper.DATA_COLUMNS[1], xlabel=None, legend=False)
-    df[df["datetime"] < "2004-03-06"].plot(kind="line", x="datetime", y=helper.DATA_COLUMNS[2], ax=axes.flat[2], grid=True, ylabel=helper.DATA_COLUMNS[2], xlabel=None, legend=False)
+    df.plot(kind="line", x="datetime", y=helper.DATA_COLUMNS[2], ax=axes.flat[2], grid=True, ylabel=helper.DATA_COLUMNS[2], xlabel=None, legend=False)
     df[(df[helper.DATA_COLUMNS[3]] < 5) & (df[helper.DATA_COLUMNS[3]] > 1)].plot(kind="line", x="datetime", y=helper.DATA_COLUMNS[3], ax=axes.flat[3], grid=True, ylabel=helper.DATA_COLUMNS[3], xlabel=None, legend=False)
+
+    for ax in axes.flat:
+        ax.set(xlabel=None)
+        ax.axes.xaxis.set_visible(False)
 
     fig.tight_layout()
     fig.savefig(os.path.join(out_path, "timeseries.pdf"))
@@ -74,7 +78,7 @@ if __name__ == "__main__":
 
     df = helper.load_data(args.data_path, args.compression)
 
-    # find_ranges(df)
+    find_ranges(df)
     plot_boxplots(df[helper.DATA_COLUMNS], args.out_path)
     plot_density(df[helper.DATA_COLUMNS], args.out_path)
     plot_timeseries(df, args.out_path)
