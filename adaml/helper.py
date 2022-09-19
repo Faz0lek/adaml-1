@@ -4,6 +4,8 @@ import pandas as pd
 
 COLUMN_NAMES = ["date", "time", "epoch", "mote_id", "temperature", "humidity", "light", "voltage"]
 
+DATA_COLUMNS = ["temperature", "humidity", "light", "voltage"]
+
 COLUMN_DTYPES = [object, object, pd.Int64Dtype(), pd.Int64Dtype(), pd.Float64Dtype(), pd.Float64Dtype(), pd.Float64Dtype(), pd.Float64Dtype()]
 
 

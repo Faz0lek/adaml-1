@@ -4,6 +4,7 @@ import os
 
 import pandas as pd
 from matplotlib import pyplot as plt
+import matplotlib.dates as mdates
 import seaborn as sns
 
 import helper
@@ -14,7 +15,7 @@ def parse_arguments():
 
     parser.add_argument("--data-path", required=True, help="Path to a file containing data.")
     parser.add_argument("--out-path", required=True, help="Path to an output folder.")
-    parser.add_argument("--compression", default="gzip", help="Compression format.")
+    parser.add_argument("--compression", default="infer", help="Compression format.")
 
     args = parser.parse_args()
     return args
@@ -28,14 +29,42 @@ def find_ranges(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def plot_boxplots(df: pd.DataFrame, out_path: str) -> None:
-    fig, axes = plt.subplots(2, 2)
+    fig, axes = plt.subplots(2, 2, figsize=(10, 10))
+    
+    sns.set_theme()
 
     for ax, (col_name, col_data) in zip(axes.flat, df.iteritems()):
-        sns.set_theme()
         sns_ax = sns.boxplot(ax=ax, data=col_data[col_data.notna()], showfliers=False)
         sns_ax.set(xticklabels=[], title=col_name)
 
+    fig.tight_layout()
     fig.savefig(os.path.join(out_path, "boxplots.pdf"))
+
+
+def plot_density(df: pd.DataFrame, out_path: str) -> None:
+    fig, axes = plt.subplots(2, 2, figsize=(10, 10))
+
+    limits = [(-10, 100), (0, 100), (0, 3000), (2, 3)]
+
+    for ax, col_name, limit in zip(axes.flat, df, limits):
+        df[col_name].plot(kind="kde", ax=ax, xlim=limit, title=col_name, ylabel=None)
+
+    fig.tight_layout()
+    fig.savefig(os.path.join(out_path, "density.pdf"))
+
+
+def plot_timeseries(df: pd.DataFrame, out_path: str) -> None:
+    fig, axes = plt.subplots(4, 1, figsize=(6, 10))
+
+    df = df.resample("8H", on="datetime").mean().reset_index()
+
+    df[df[helper.DATA_COLUMNS[0]] < 120].plot(kind="line", x="datetime", y=helper.DATA_COLUMNS[0], ax=axes.flat[0], grid=True, ylabel=helper.DATA_COLUMNS[0], xlabel=None, legend=False)
+    df[df[helper.DATA_COLUMNS[1]] >= 0].plot(kind="line", x="datetime", y=helper.DATA_COLUMNS[1], ax=axes.flat[1], grid=True, ylabel=helper.DATA_COLUMNS[1], xlabel=None, legend=False)
+    df[df["datetime"] < "2004-03-06"].plot(kind="line", x="datetime", y=helper.DATA_COLUMNS[2], ax=axes.flat[2], grid=True, ylabel=helper.DATA_COLUMNS[2], xlabel=None, legend=False)
+    df[(df[helper.DATA_COLUMNS[3]] < 5) & (df[helper.DATA_COLUMNS[3]] > 1)].plot(kind="line", x="datetime", y=helper.DATA_COLUMNS[3], ax=axes.flat[3], grid=True, ylabel=helper.DATA_COLUMNS[3], xlabel=None, legend=False)
+
+    fig.tight_layout()
+    fig.savefig(os.path.join(out_path, "timeseries.pdf"))
 
 
 if __name__ == "__main__":
@@ -45,5 +74,7 @@ if __name__ == "__main__":
 
     df = helper.load_data(args.data_path, args.compression)
 
-    find_ranges(df)
-    plot_boxplots(df[["temperature", "humidity", "light", "voltage"]], args.out_path)
+    # find_ranges(df)
+    plot_boxplots(df[helper.DATA_COLUMNS], args.out_path)
+    plot_density(df[helper.DATA_COLUMNS], args.out_path)
+    plot_timeseries(df, args.out_path)

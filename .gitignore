@@ -1,6 +1,5 @@
 data/
 __pycache__/
-outputs/
 venv/
 *.aux
 *.log
