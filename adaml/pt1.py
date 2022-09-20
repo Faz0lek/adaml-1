@@ -26,7 +26,6 @@ def find_ranges(df: pd.DataFrame) -> pd.DataFrame:
 
     range_df = pd.concat([mins, maxs], axis=1).reset_index().rename({"index": "column", 0: "min", 1: "max"}, axis=1)
     print(range_df)
-    a = 5*5
 
 
 def plot_boxplots(df: pd.DataFrame, out_path: str) -> None:
