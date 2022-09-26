@@ -5,3 +5,6 @@ venv/
 *.log
 *.out
 *.synctex.gz
+output.txt
+winvenv/
+
