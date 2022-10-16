@@ -48,7 +48,7 @@ def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
     df = df.dropna(axis=1, thresh=len(df.index) - 10)
     
     df = df.interpolate(axis=1)
-    df = (df - df.mean()) / df.std()
+    # df = (df - df.mean()) / df.std()
     
     return df
     
