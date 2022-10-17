@@ -32,7 +32,7 @@ def load_data(path: str, compression="gzip") -> pd.DataFrame:
     return df
 
 
-def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
+def preprocess_data(df: pd.DataFrame, interval: str = "2H", scale: bool = False) -> pd.DataFrame:
     temp_df = df.pivot(columns="mote_id", values="temperature").add_prefix("T-").reset_index()
     light_df = df.pivot(columns="mote_id", values="light").add_prefix("L-").reset_index()
     humidity_df = df.pivot(columns="mote_id", values="humidity").add_prefix("H-").reset_index()
@@ -42,13 +42,15 @@ def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
     
     df = reduce(lambda left, right: pd.merge(left, right, on=["datetime"]), dfs)
 
-    df = df.resample("2H", on="datetime").mean()
+    df = df.resample(interval, on="datetime").mean()
     df = df.dropna(how="all")
     df = df.dropna(thresh=int(54*4*0.8))
     df = df.dropna(axis=1, thresh=len(df.index) - 10)
     
     df = df.interpolate(axis=1)
-    # df = (df - df.mean()) / df.std()
+
+    if scale:
+        df = (df - df.mean()) / df.std()
     
     return df
     

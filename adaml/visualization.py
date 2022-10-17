@@ -1,3 +1,8 @@
+""" This script was used to find theoretical values of variables and to visualize the data
+    and it's distribution.
+
+"""
+
 import typing
 import argparse
 import os
@@ -8,6 +13,9 @@ import matplotlib.dates as mdates
 import seaborn as sns
 
 import helper
+
+
+__author__ = "Martin Kostelnik, Marianne Jakonen, Ahmed Ansari"
 
 
 def parse_arguments():
